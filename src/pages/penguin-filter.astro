@@ -1,0 +1,53 @@
+---
+import Nav from "../components/Nav.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <Nav />
+  <h1 class="text-2xl font-bold mb-4">Essai 3 : Filtre par Espèce</h1>
+
+  <div class="mb-6">
+    <label for="species" class="mr-2 font-medium">Espèce :</label>
+    <select name="species" id="species" class="p-2 border rounded border-gray-300">
+      <option value="">All species</option>
+      <option value="Adelie">Adelie</option>
+      <option value="Chinstrap">Chinstrap</option>
+      <option value="Gentoo">Gentoo</option>
+    </select>
+  </div>
+
+  <div id="myplot"></div>
+
+  <script>
+    import * as Plot from "@observablehq/plot";
+    import penguins from "../assets/penguins.json";
+
+    const selectSpecies = document.querySelector("#species") as HTMLSelectElement;
+
+    function renderPlot() {
+      const species = selectSpecies.value;
+      const div = document.querySelector("#myplot");
+
+      if (div) {
+        div.innerHTML = "";
+
+        const plot = Plot.plot({
+          marks: [
+            Plot.dot(penguins, {
+              x: "culmen_length_mm",
+              y: "culmen_depth_mm",
+              stroke: "species",
+              filter: (d: any) => (species ? d.species === species : true),
+            }),
+          ],
+        });
+
+        div.append(plot);
+      }
+    }
+
+    selectSpecies?.addEventListener("change", renderPlot);
+    renderPlot();
+  </script>
+</Layout>
