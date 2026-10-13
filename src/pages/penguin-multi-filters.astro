@@ -1,0 +1,87 @@
+---
+import Nav from "../components/Nav.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <Nav />
+  <h1 class="text-2xl font-bold mb-4">Essai 4 : Filtres Multiples</h1>
+
+  <div class="flex gap-4 mb-6">
+    <div>
+      <label for="species" class="block text-sm font-medium">Espèce :</label>
+      <select id="species" class="p-2 border rounded border-gray-300">
+        <option value="">Toutes</option>
+        <option value="Adelie">Adelie</option>
+        <option value="Chinstrap">Chinstrap</option>
+        <option value="Gentoo">Gentoo</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="island" class="block text-sm font-medium">Île :</label>
+      <select id="island" class="p-2 border rounded border-gray-300">
+        <option value="">Toutes</option>
+        <option value="Biscoe">Biscoe</option>
+        <option value="Dream">Dream</option>
+        <option value="Torgersen">Torgersen</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="sex" class="block text-sm font-medium">Sexe :</label>
+      <select id="sex" class="p-2 border rounded border-gray-300">
+        <option value="">Tous</option>
+        <option value="MALE">MALE</option>
+        <option value="FEMALE">FEMALE</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="myplot"></div>
+
+  <script>
+    import * as Plot from "@observablehq/plot";
+    import penguins from "../assets/penguins.json";
+
+    const selectSpecies = document.querySelector("#species") as HTMLSelectElement;
+    const selectIsland = document.querySelector("#island") as HTMLSelectElement;
+    const selectSex = document.querySelector("#sex") as HTMLSelectElement;
+
+    function renderPlot() {
+      const species = selectSpecies.value;
+      const island = selectIsland.value;
+      const sex = selectSex.value;
+
+      const div = document.querySelector("#myplot");
+
+      if (div) {
+        div.innerHTML = "";
+
+        const plot = Plot.plot({
+          marks: [
+            Plot.dot(penguins, {
+              x: "culmen_length_mm",
+              y: "culmen_depth_mm",
+              stroke: "species",
+              filter: (d: any) => {
+                const matchSpecies = species ? d.species === species : true;
+                const matchIsland = island ? d.island === island : true;
+                const matchSex = sex ? d.sex === sex : true;
+                return matchSpecies && matchIsland && matchSex;
+              },
+            }),
+          ],
+        });
+
+        div.append(plot);
+      }
+    }
+
+    selectSpecies?.addEventListener("change", renderPlot);
+    selectIsland?.addEventListener("change", renderPlot);
+    selectSex?.addEventListener("change", renderPlot);
+
+    renderPlot();
+  </script>
+</Layout>
